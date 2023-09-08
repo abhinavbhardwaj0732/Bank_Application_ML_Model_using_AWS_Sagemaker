@@ -58,3 +58,27 @@ for inference_result in results:
 
 # Step 7: Testing and Monitoring
 # Test your pipeline and monitor it to ensure it works correctly and efficiently.
+
+
+
+
+
+
+
+import boto3
+
+# Initialize DynamoDB client
+dynamodb = boto3.resource('dynamodb')
+table_name = 'YourDynamoDBTableName'  # Replace with your DynamoDB table name
+table = dynamodb.Table(table_name)
+
+# Iterate through the DataFrame (or list) and insert each prediction result into DynamoDB
+for _, row in prediction_data.iterrows():
+    prediction_result = row.to_dict()
+
+    # Insert data into DynamoDB
+    try:
+        response = table.put_item(Item=prediction_result)
+        print("Prediction result stored successfully")
+    except Exception as e:
+        print(f"Error storing prediction result: {e}")
