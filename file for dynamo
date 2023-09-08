@@ -1,0 +1,60 @@
+
+import boto3
+import sagemaker
+import json
+
+# Step 1: Prepare the Inference Data
+# Assuming you have a list of records to send for inference
+
+
+# Step 2: Invoke the SageMaker Endpoint for Batch Inference
+# Set up SageMaker and Boto3 clients
+sagemaker_session = sagemaker.Session()
+runtime = boto3.client('sagemaker-runtime', region_name='us-west-2')
+
+# Define your SageMaker endpoint name
+endpoint_name = 'xgboost-2023-09-08-06-11-28-985'
+
+# Invoke the endpoint for batch inference
+results = []
+for input_data in input_data_list:
+    response = runtime.invoke_endpoint(
+        EndpointName=endpoint_name,
+        Body=json.dumps(input_data),
+        ContentType='application/json'
+    )
+    inference_result = json.loads(response['Body'].read())
+    results.append(inference_result)
+
+# Step 3: Process the Inference Results (if needed)
+# Depending on your use case, you may need to further process the results.
+
+# Step 4: Store the Results in DynamoDB
+# Set up DynamoDB client
+dynamodb = boto3.resource('dynamodb', region_name='us-west-2')
+
+# Specify the DynamoDB table name
+table_name = 'banktable'
+
+# Create a DynamoDB table resource
+table = dynamodb.Table(table_name)
+
+# Iterate through the results and store each record in DynamoDB
+for inference_result in results:
+    item = {
+        'id': 'unique',  # Provide a unique identifier for each record
+        'result': json.dumps(inference_result),  # Store the result as JSON
+        # Add other attributes as needed
+    }
+    
+    # Put the item into the DynamoDB table
+    table.put_item(Item=item)
+
+# Step 5: Error Handling (Implement error handling as needed)
+# Handle any exceptions or errors that may occur during the process.
+
+# Step 6: IAM Permissions
+# Ensure that the IAM role associated with your environment has the necessary permissions for SageMaker and DynamoDB operations.
+
+# Step 7: Testing and Monitoring
+# Test your pipeline and monitor it to ensure it works correctly and efficiently.
